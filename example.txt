@@ -1,0 +1,18 @@
+-- Your tester LocalScript
+local TestPanel = require(game:GetService("ReplicatedStorage"):WaitForChild("TestPanel"))
+
+TestPanel:Init({ Title = "Anti-Cheat Tester" })
+
+TestPanel:AddCheckbox("Extended Hitboxes (2x)", false, function(on)
+    -- your refreshHitbox logic
+end)
+
+TestPanel:AddCheckbox("Highlight ESP", false, function(on)
+    -- your refreshESP logic
+end)
+
+local slider = TestPanel:AddSlider("Hitbox Multiplier", 1.0, 3.0, 0.1, 2.0, function(v)
+    -- your applyMultiplier(v) logic
+end)
+
+TestPanel:AddLabel("RightShift to toggle panel")
