@@ -139,9 +139,9 @@ local function buildUI()
         end
     end)
 
-    -- toggle key
-    UserInputService.InputBegan:Connect(function(input, processed)
-        if processed then return end
+    -- toggle key (ignore gameProcessedEvent: games often mark the key as
+    -- processed, which would swallow the toggle)
+    UserInputService.InputBegan:Connect(function(input)
         if input.KeyCode == CONFIG.ToggleKey then
             gui.Enabled = not gui.Enabled
             for _, cb in ipairs(toggleCallbacks) do cb(gui.Enabled) end
