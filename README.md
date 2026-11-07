@@ -26,7 +26,7 @@ See `example.lua` for a full example.
 
 | Method | Description |
 | --- | --- |
-| `BunLib:Init(config)` | Builds the panel. Config keys: `Title`, `ToggleKey`, `Position`, `Width`, `RowHeight`, `Padding`, `TitleHeight` |
+| `BunLib:Init(config)` | Builds the panel (visible by default). Config keys: `Title`, `ToggleKey`, `Position`, `Width`, `RowHeight`, `Padding`, `TitleHeight`, `StartVisible` |
 | `BunLib:AddCheckbox(label, initial, onChange)` | Returns `{ SetChecked(bool), IsChecked() }` |
 | `BunLib:AddSlider(label, min, max, step, initial, onChange)` | Returns `{ SetValue(v), GetValue() }` |
 | `BunLib:AddLabel(text)` | Plain text row |

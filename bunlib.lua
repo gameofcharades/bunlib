@@ -25,6 +25,7 @@ local CONFIG = {
     RowHeight = 26,
     Padding = 6,
     TitleHeight = 28,
+    StartVisible = true, -- open by default; pass StartVisible = false to Init to start hidden
 }
 
 local COLORS = {
@@ -74,7 +75,7 @@ local function buildUI()
     gui.ResetOnSpawn = false
     gui.IgnoreGuiInset = true
     gui.DisplayOrder = 999
-    gui.Enabled = false
+    gui.Enabled = CONFIG.StartVisible ~= false
     gui.Parent = getGuiParent()
 
     frame = Instance.new("Frame")
