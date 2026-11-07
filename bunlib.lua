@@ -14,6 +14,7 @@ local BunLib = {}
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 -- ============ CONFIG ============
@@ -89,7 +90,7 @@ local function buildUI()
 
     local title = Instance.new("TextLabel")
     title.Name = "Title"
-    title.Size = UDim2.new(1, 0, 0, CONFIG.TitleHeight)
+    title.Size = UDim2.new(1, -24, 0, CONFIG.TitleHeight)
     title.BackgroundColor3 = COLORS.Title
     title.BorderSizePixel = 0
     title.Text = "  " .. CONFIG.Title .. " (" .. CONFIG.ToggleKey.Name .. ")"
@@ -98,6 +99,19 @@ local function buildUI()
     title.Font = Enum.Font.Code
     title.TextSize = 13
     title.Parent = frame
+
+    -- clickable toggle button on the title bar (mouse fallback for the key)
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Name = "ToggleButton"
+    toggleBtn.Size = UDim2.fromOffset(24, CONFIG.TitleHeight)
+    toggleBtn.Position = UDim2.new(1, -24, 0, 0)
+    toggleBtn.BackgroundColor3 = COLORS.Title
+    toggleBtn.BorderSizePixel = 0
+    toggleBtn.Text = "_"
+    toggleBtn.TextColor3 = COLORS.TitleText
+    toggleBtn.Font = Enum.Font.Code
+    toggleBtn.TextSize = 14
+    toggleBtn.Parent = frame
 
     list = Instance.new("Frame")
     list.Name = "List"
@@ -139,13 +153,35 @@ local function buildUI()
         end
     end)
 
-    -- toggle key (ignore gameProcessedEvent: games often mark the key as
-    -- processed, which would swallow the toggle)
+    -- show/hide with OnToggle callbacks. Debounced so the key event and the
+    -- key-state poll below can't both fire for a single press.
+    local lastToggle = -math.huge
+    local function toggle()
+        local now = tick()
+        if now - lastToggle < 0.15 then return end
+        lastToggle = now
+        gui.Enabled = not gui.Enabled
+        for _, cb in ipairs(toggleCallbacks) do cb(gui.Enabled) end
+    end
+    toggleBtn.MouseButton1Click:Connect(toggle)
+
+    -- toggle key, path 1: input event (ignore gameProcessedEvent: games often
+    -- mark the key as processed, which would swallow the toggle)
     UserInputService.InputBegan:Connect(function(input)
         if input.KeyCode == CONFIG.ToggleKey then
-            gui.Enabled = not gui.Enabled
-            for _, cb in ipairs(toggleCallbacks) do cb(gui.Enabled) end
+            toggle()
         end
+    end)
+
+    -- toggle key, path 2: poll key state every frame (works even if the
+    -- executor/game swallows InputBegan entirely)
+    local keyWasDown = false
+    RunService.RenderStepped:Connect(function()
+        local down = UserInputService:IsKeyDown(CONFIG.ToggleKey)
+        if down and not keyWasDown then
+            toggle()
+        end
+        keyWasDown = down
     end)
 
     updateHeight()
@@ -359,6 +395,14 @@ end
 -- Show/hide programmatically
 function BunLib:SetVisible(v)
     if gui then gui.Enabled = v and true or false end
+end
+
+-- Flip visibility (same as pressing the toggle key / clicking the title button)
+function BunLib:Toggle()
+    if gui then gui.Enabled = not gui.Enabled end
+    for _, cb in ipairs(toggleCallbacks) do
+        if gui then cb(gui.Enabled) end
+    end
 end
 
 function BunLib:IsVisible()
