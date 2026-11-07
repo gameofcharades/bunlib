@@ -2,18 +2,33 @@
 
 local BunLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/gameofcharades/bunlib/main/bunlib.lua"))()
 
-BunLib:Init({ Title = "Anti-Cheat Tester" })
+local Window = BunLib:CreateWindow({ Title = "My Menu" })
+local Tab = Window:CreateTab("Main")
 
-BunLib:AddCheckbox("Extended Hitboxes (2x)", false, function(on)
-    -- your refreshHitbox logic
-end)
+Tab:CreateToggle({
+    Name = "Example toggle",
+    CurrentValue = false,
+    Callback = function(on)
+        print("toggled:", on)
+    end,
+})
 
-BunLib:AddCheckbox("Highlight ESP", false, function(on)
-    -- your refreshESP logic
-end)
+Tab:CreateSlider({
+    Name = "Example slider",
+    Min = 0,
+    Max = 10,
+    Increment = 0.1, -- snaps to clean 0.1 steps
+    CurrentValue = 5,
+    Callback = function(v)
+        print("slider:", v)
+    end,
+})
 
-local slider = BunLib:AddSlider("Hitbox Multiplier", 1.0, 3.0, 0.1, 2.0, function(v)
-    -- your applyMultiplier(v) logic
-end)
+Tab:CreateButton({
+    Name = "Notify me",
+    Callback = function()
+        BunLib:Notify({ Title = "Hello", Content = "Button clicked", Type = "Success" })
+    end,
+})
 
-BunLib:AddLabel("RightShift to toggle panel")
+-- see test-all.lua for every feature (dropdown, textbox, color picker, tabs...)

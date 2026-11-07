@@ -6,7 +6,8 @@ local BunLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/gameof
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-BunLib:Init({ Title = "ESP Tester" })
+local Window = BunLib:CreateWindow({ Title = "ESP Tester" })
+local Tab = Window:CreateTab("ESP")
 
 -- ============ ESP ============
 local highlights = {} -- [Player] = Highlight
@@ -22,22 +23,13 @@ local function applyStyle(h)
 end
 
 local function addHighlight(player)
-    if player == LocalPlayer then return end
-    if highlights[player] then return end
+    if player == LocalPlayer or highlights[player] then return end
     local char = player.Character
     if not char then return end
     local h = Instance.new("Highlight")
     applyStyle(h)
     h.Parent = char
     highlights[player] = h
-end
-
-local function removeHighlight(player)
-    local h = highlights[player]
-    if h then
-        h:Destroy()
-        highlights[player] = nil
-    end
 end
 
 local function setEsp(on)
@@ -48,8 +40,9 @@ local function setEsp(on)
             player.CharacterAdded:Connect(function()
                 if espEnabled then addHighlight(player) end
             end)
-        else
-            removeHighlight(player)
+        elseif highlights[player] then
+            highlights[player]:Destroy()
+            highlights[player] = nil
         end
     end
 end
@@ -64,15 +57,18 @@ Players.PlayerAdded:Connect(function(player)
 end)
 
 -- ============ UI ============
-BunLib:AddCheckbox("Highlight players", false, function(on)
-    setEsp(on)
-end)
+Tab:CreateToggle({ Name = "Highlight players", CurrentValue = false, Callback = setEsp })
 
-BunLib:AddSlider("Inner opacity", 0, 1, 0.05, innerOpacity, function(v)
-    innerOpacity = v
-    for _, h in pairs(highlights) do
-        h.FillTransparency = 1 - v
-    end
-end)
-
-BunLib:AddLabel("RightShift to toggle panel")
+Tab:CreateSlider({
+    Name = "Inner opacity",
+    Min = 0,
+    Max = 1,
+    Increment = 0.05,
+    CurrentValue = innerOpacity,
+    Callback = function(v)
+        innerOpacity = v
+        for _, h in pairs(highlights) do
+            h.FillTransparency = 1 - v
+        end
+    end,
+})
